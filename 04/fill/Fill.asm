@@ -12,3 +12,56 @@
 // the screen should remain fully clear as long as no key is pressed.
 
 // Put your code here.
+  @SCREEN
+  D = A
+  @8192
+  D = D + A
+  @n
+  M = D
+  @LAST_COLOR
+  M = 1
+
+(LOOP)
+  @KBD
+  D = M
+  @DRAW
+  D; JEQ
+  D = -1
+
+(DRAW)
+  // Check if color needs to be changed.
+  @COLOR
+  M = D
+  @LAST_COLOR
+  D = M - D
+  @LOOP
+  D; JEQ
+
+  // COLOR changed
+  @COLOR
+  D = M
+  @LAST_COLOR
+  M = D
+
+  @SCREEN
+  D = A
+  @i
+  M = D
+
+(DRAW_LOOP)
+  @i
+  D = M
+  @n
+  D = D - M
+  @LOOP
+  D; JEQ
+
+  @COLOR
+  D = M
+  @i
+  A = M
+  M = D
+  @i
+  M = M + 1
+  @DRAW_LOOP
+  0; JMP

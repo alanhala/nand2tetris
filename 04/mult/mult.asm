@@ -7,3 +7,26 @@
 // (R0, R1, R2 refer to RAM[0], RAM[1], and RAM[2], respectively.)
 
 // Put your code here.
+  @R2
+  M = 0
+  @R1
+  D = M
+  @i
+  M = D
+
+(LOOP)
+  @i
+  M = M - 1
+  D = M
+@END
+  D;JLT
+  @R0 // 3
+  D = M // D = 3
+  @R2
+  M = M + D // R2 = 0 + 3
+@LOOP
+  0;JEQ
+
+(END)
+  @END
+  0;JMP
