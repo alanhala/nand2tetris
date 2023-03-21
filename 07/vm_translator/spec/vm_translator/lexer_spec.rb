@@ -19,12 +19,40 @@ RSpec.describe VmTranslator::Lexer do
     expect(described_class.new("sub").tokens).to eq([[[:sub]]])
   end
 
+  it "returns token for and" do
+    expect(described_class.new("and").tokens).to eq([[[:and]]])
+  end
+
+  it "returns token for or" do
+    expect(described_class.new("or").tokens).to eq([[[:or]]])
+  end
+
   it "returns token for constant" do
     expect(described_class.new("constant").tokens).to eq([[[:segment, "constant"]]])
   end
 
   it "returns token for number" do
     expect(described_class.new("123").tokens).to eq([[[:number, 123]]])
+  end
+
+  it "returns token for eq" do
+    expect(described_class.new("eq").tokens).to eq([[[:eq]]])
+  end
+
+  it "returns token for not" do
+    expect(described_class.new("not").tokens).to eq([[[:not]]])
+  end
+  
+  it "returns token for neg" do
+    expect(described_class.new("neg").tokens).to eq([[[:neg]]])
+  end
+
+  it "returns token for gt" do
+    expect(described_class.new("gt").tokens).to eq([[[:gt]]])
+  end
+
+  it "returns token for lt" do
+    expect(described_class.new("lt").tokens).to eq([[[:lt]]])
   end
 
   it "skips the line if it is a comment" do

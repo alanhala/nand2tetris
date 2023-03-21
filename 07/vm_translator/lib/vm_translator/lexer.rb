@@ -22,6 +22,20 @@ module VmTranslator
             [:add]
           when "sub"
             [:sub]
+          when "and"
+            [:and]
+          when "or"
+            [:or]
+          when "neg"
+            [:neg]
+          when "not"
+            [:not]
+          when "eq"
+            [:eq]
+          when "lt"
+            [:lt]
+          when "gt"
+            [:gt]
           when /\d/
             [:number, word.to_i]
           else

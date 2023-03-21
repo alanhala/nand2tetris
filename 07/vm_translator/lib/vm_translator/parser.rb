@@ -7,7 +7,7 @@ module VmTranslator
     end
 
     def commands
-      @tokens_per_line.filter_map do |tokens|
+      @tokens_per_line.each_with_index.filter_map do |tokens, line|
         case tokens
         in []
           nil
@@ -19,6 +19,20 @@ module VmTranslator
           Commands::Add.new
         in [[:sub]]
           Commands::Sub.new
+        in [[:and]]
+          Commands::And.new
+        in [[:or]]
+          Commands::Or.new
+        in [[:not]]
+          Commands::Not.new
+        in [[:neg]]
+          Commands::Neg.new
+        in [[:eq]]
+          Commands::Eq.new(line)
+        in [[:lt]]
+          Commands::Lt.new(line)
+        in [[:gt]]
+          Commands::Gt.new(line)
         end
       end
     end

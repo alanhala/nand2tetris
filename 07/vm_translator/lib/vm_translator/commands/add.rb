@@ -8,18 +8,7 @@ module VmTranslator
       end
 
       def to_assembly
-        <<~ASSEMBLY
-          @SP
-          M = M - 1
-          A = M
-          D = M
-          @SP
-          M = M - 1
-          A = M
-          M = M + D
-          @SP
-          M = M + 1
-        ASSEMBLY
+        Binary.new("+").to_assembly
       end
     end
   end

@@ -2,13 +2,13 @@
 
 module VmTranslator
   module Commands
-    class Sub
+    class And
       def ==(other)
         self.class == other.class
       end
 
       def to_assembly
-        Binary.new("-").to_assembly
+        Binary.new("&").to_assembly
       end
     end
   end
