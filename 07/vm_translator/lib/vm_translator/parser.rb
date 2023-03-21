@@ -17,6 +17,8 @@ module VmTranslator
           Commands::Pop.new(segment, number)
         in [[:add]]
           Commands::Add.new
+        in [[:sub]]
+          Commands::Sub.new
         end
       end
     end

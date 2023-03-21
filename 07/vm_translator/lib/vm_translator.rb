@@ -6,6 +6,7 @@ require_relative "vm_translator/parser"
 require_relative "vm_translator/commands/push"
 require_relative "vm_translator/commands/pop"
 require_relative "vm_translator/commands/add"
+require_relative "vm_translator/commands/sub"
 
 module VmTranslator
   class Error < StandardError; end

@@ -15,6 +15,10 @@ RSpec.describe VmTranslator::Lexer do
     expect(described_class.new("add").tokens).to eq([[[:add]]])
   end
 
+  it "returns token for sub" do
+    expect(described_class.new("sub").tokens).to eq([[[:sub]]])
+  end
+
   it "returns token for constant" do
     expect(described_class.new("constant").tokens).to eq([[[:segment, "constant"]]])
   end

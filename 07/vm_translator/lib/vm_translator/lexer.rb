@@ -20,6 +20,8 @@ module VmTranslator
             [:segment, word]
           when "add"
             [:add]
+          when "sub"
+            [:sub]
           when /\d/
             [:number, word.to_i]
           else

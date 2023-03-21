@@ -17,4 +17,9 @@ RSpec.describe VmTranslator::Parser do
     commands = described_class.new(VmTranslator::Lexer.new("add").tokens).commands
     expect(commands).to eq([VmTranslator::Commands::Add.new])
   end
+
+  it "parses sub command" do
+    commands = described_class.new(VmTranslator::Lexer.new("sub").tokens).commands
+    expect(commands).to eq([VmTranslator::Commands::Sub.new])
+  end
 end
