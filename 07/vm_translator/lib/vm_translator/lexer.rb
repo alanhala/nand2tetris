@@ -16,7 +16,7 @@ module VmTranslator
             [:push]
           when "pop"
             [:pop]
-          when "constant"
+          when "constant", "local", "argument", "this", "that", "pointer", "temp", "static"
             [:segment, word]
           when "add"
             [:add]

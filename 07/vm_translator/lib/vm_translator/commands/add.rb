@@ -7,8 +7,8 @@ module VmTranslator
         self.class == other.class
       end
 
-      def to_assembly
-        Binary.new("+").to_assembly
+      def accept(visitor)
+        visitor.visit_add(self)
       end
     end
   end

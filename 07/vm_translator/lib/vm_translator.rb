@@ -3,9 +3,7 @@
 require_relative "vm_translator/version"
 require_relative "vm_translator/lexer"
 require_relative "vm_translator/parser"
-require_relative "vm_translator/commands/conditional"
-require_relative "vm_translator/commands/binary"
-require_relative "vm_translator/commands/unary"
+require_relative "vm_translator/compiler"
 require_relative "vm_translator/commands/push"
 require_relative "vm_translator/commands/pop"
 require_relative "vm_translator/commands/add"
@@ -23,10 +21,9 @@ module VmTranslator
   # Your code goes here...
 
   def self.translate(vm_file_path)
-    vm_source = File.read(File.expand_path(vm_file_path))
-    lexer = VmTranslator::Lexer.new(vm_source)
+    expanded_vm_file_path = File.expand_path(vm_file_path)
+    lexer = VmTranslator::Lexer.new(File.read(expanded_vm_file_path))
     parser = VmTranslator::Parser.new(lexer.tokens)
-    compiled_assembly = parser.commands.map(&:to_assembly).join
-    File.write(File.expand_path(vm_file_path.gsub(".vm", ".asm")), compiled_assembly)
+    VmTranslator::Compiler.new(expanded_vm_file_path).compile(parser.commands)
   end
 end

@@ -31,6 +31,34 @@ RSpec.describe VmTranslator::Lexer do
     expect(described_class.new("constant").tokens).to eq([[[:segment, "constant"]]])
   end
 
+  it "returns token for local" do
+    expect(described_class.new("local").tokens).to eq([[[:segment, "local"]]])
+  end
+  
+  it "returns token for argument" do
+    expect(described_class.new("argument").tokens).to eq([[[:segment, "argument"]]])
+  end
+
+  it "returns token for this" do
+    expect(described_class.new("this").tokens).to eq([[[:segment, "this"]]])
+  end
+
+  it "returns token for that" do
+    expect(described_class.new("that").tokens).to eq([[[:segment, "that"]]])
+  end
+
+  it "returns token for pointer" do
+    expect(described_class.new("pointer").tokens).to eq([[[:segment, "pointer"]]])
+  end
+
+  it "returns token for temp" do
+    expect(described_class.new("temp").tokens).to eq([[[:segment, "temp"]]])
+  end
+
+  it "returns token for static" do
+    expect(described_class.new("static").tokens).to eq([[[:segment, "static"]]])
+  end
+
   it "returns token for number" do
     expect(described_class.new("123").tokens).to eq([[[:number, 123]]])
   end

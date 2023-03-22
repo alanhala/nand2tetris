@@ -3,6 +3,8 @@
 module VmTranslator
   module Commands
     class Eq
+      attr_reader(:line)
+
       def initialize(line)
         @line = line
       end
@@ -11,13 +13,9 @@ module VmTranslator
         self.class == other.class && @line == other.line
       end
 
-      def to_assembly
-        Conditional.new(@line, "JEQ").to_assembly
+      def accept(visitor)
+        visitor.visit_eq(self)
       end
-
-      protected
-
-      attr_reader :line
     end
   end
 end

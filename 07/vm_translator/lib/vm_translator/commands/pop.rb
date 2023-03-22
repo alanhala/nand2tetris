@@ -3,6 +3,8 @@
 module VmTranslator
   module Commands
     class Pop
+      attr_reader :segment, :index
+
       def initialize(segment, index)
         @segment = segment
         @index = index
@@ -12,12 +14,9 @@ module VmTranslator
         self.class == other.class && segment == other.segment && index == other.index
       end
 
-      def to_assembly
+      def accept(visitor)
+        visitor.visit_pop(self)
       end
-
-      protected
-
-      attr_reader :segment, :index
     end
   end
 end
