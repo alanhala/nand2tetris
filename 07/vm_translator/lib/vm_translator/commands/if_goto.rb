@@ -2,9 +2,9 @@
 
 module VmTranslator
   module Commands
-    Eq = Struct.new(:line) do
+    IfGoto = Struct.new(:label_name) do
       def accept(visitor)
-        visitor.visit_eq(self)
+        visitor.visit_if_goto(self)
       end
     end
   end

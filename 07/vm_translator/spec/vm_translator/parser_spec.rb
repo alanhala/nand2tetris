@@ -57,4 +57,19 @@ RSpec.describe VmTranslator::Parser do
     commands = described_class.new(VmTranslator::Lexer.new("lt").tokens).commands
     expect(commands).to eq([VmTranslator::Commands::Lt.new(0)])
   end
+
+  it "parses label definition command" do
+    commands = described_class.new(VmTranslator::Lexer.new("label asd").tokens).commands
+    expect(commands).to eq([VmTranslator::Commands::LabelDefinition.new("asd")])
+  end
+
+  it "parses goto command" do
+    commands = described_class.new(VmTranslator::Lexer.new("goto asd").tokens).commands
+    expect(commands).to eq([VmTranslator::Commands::Goto.new("asd")])
+  end
+
+  it "parses if goto command" do
+    commands = described_class.new(VmTranslator::Lexer.new("if-goto asd").tokens).commands
+    expect(commands).to eq([VmTranslator::Commands::IfGoto.new("asd")])
+  end
 end

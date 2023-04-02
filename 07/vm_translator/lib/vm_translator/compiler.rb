@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module VmTranslator
   class Compiler
     def initialize(vm_file_path)
@@ -61,6 +63,30 @@ module VmTranslator
 
     def visit_sub(_command)
       binary("-")
+    end
+
+    def visit_label_definition(command)
+      <<~ASSEMBLY
+        (#{command.label_name})
+      ASSEMBLY
+    end
+
+    def visit_goto(command)
+      <<~ASSEMBLY
+        @#{command.label_name}
+        0;JMP
+      ASSEMBLY
+    end
+
+    def visit_if_goto(command)
+      <<~ASSEMBLY
+        @SP
+        M = M - 1
+        A = M
+        D = M
+        @#{command.label_name}
+        D;JNE
+      ASSEMBLY
     end
 
     private

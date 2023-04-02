@@ -34,7 +34,7 @@ RSpec.describe VmTranslator::Lexer do
   it "returns token for local" do
     expect(described_class.new("local").tokens).to eq([[[:segment, "local"]]])
   end
-  
+
   it "returns token for argument" do
     expect(described_class.new("argument").tokens).to eq([[[:segment, "argument"]]])
   end
@@ -70,7 +70,7 @@ RSpec.describe VmTranslator::Lexer do
   it "returns token for not" do
     expect(described_class.new("not").tokens).to eq([[[:not]]])
   end
-  
+
   it "returns token for neg" do
     expect(described_class.new("neg").tokens).to eq([[[:neg]]])
   end
@@ -81,6 +81,22 @@ RSpec.describe VmTranslator::Lexer do
 
   it "returns token for lt" do
     expect(described_class.new("lt").tokens).to eq([[[:lt]]])
+  end
+
+  it "returns token for label_definition" do
+    expect(described_class.new("label").tokens).to eq([[[:label_definition]]])
+  end
+
+  it "returns token for label_name" do
+    expect(described_class.new("asd123").tokens).to eq([[[:label_name, "asd123"]]])
+  end
+
+  it "returns token for goto" do
+    expect(described_class.new("goto").tokens).to eq([[[:goto]]])
+  end
+
+  it "returns token for if_goto" do
+    expect(described_class.new("if-goto").tokens).to eq([[[:if_goto]]])
   end
 
   it "skips the line if it is a comment" do

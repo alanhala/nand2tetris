@@ -2,17 +2,7 @@
 
 module VmTranslator
   module Commands
-    class Gt
-      attr_reader :line
-
-      def initialize(line)
-        @line = line
-      end
-
-      def ==(other)
-        self.class == other.class && @line == other.line
-      end
-
+    Gt = Struct.new(:line) do
       def accept(visitor)
         visitor.visit_gt(self)
       end

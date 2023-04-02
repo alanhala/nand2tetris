@@ -36,6 +36,14 @@ module VmTranslator
             [:lt]
           when "gt"
             [:gt]
+          when "label"
+            [:label_definition]
+          when "goto"
+            [:goto]
+          when "if-goto"
+            [:if_goto]
+          when /[a-zA-Z_:.][a-zA-Z0-9_:.]*/
+            [:label_name, word]
           when /\d/
             [:number, word.to_i]
           else

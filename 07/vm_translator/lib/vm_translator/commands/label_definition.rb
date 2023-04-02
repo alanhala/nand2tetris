@@ -2,9 +2,9 @@
 
 module VmTranslator
   module Commands
-    Eq = Struct.new(:line) do
+    LabelDefinition = Struct.new(:label_name) do
       def accept(visitor)
-        visitor.visit_eq(self)
+        visitor.visit_label_definition(self)
       end
     end
   end
