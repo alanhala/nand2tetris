@@ -18,6 +18,9 @@ require_relative "vm_translator/commands/gt"
 require_relative "vm_translator/commands/label_definition"
 require_relative "vm_translator/commands/goto"
 require_relative "vm_translator/commands/if_goto"
+require_relative "vm_translator/commands/return"
+require_relative "vm_translator/commands/function"
+require_relative "vm_translator/commands/call"
 
 module VmTranslator
   class Error < StandardError; end

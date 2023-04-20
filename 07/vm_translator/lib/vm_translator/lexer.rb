@@ -42,8 +42,14 @@ module VmTranslator
             [:goto]
           when "if-goto"
             [:if_goto]
+          when "return"
+            [:return]
+          when "function"
+            [:function]
+          when "call"
+            [:call]
           when /[a-zA-Z_:.][a-zA-Z0-9_:.]*/
-            [:label_name, word]
+            [:identifier, word]
           when /\d/
             [:number, word.to_i]
           else

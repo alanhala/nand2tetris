@@ -87,8 +87,8 @@ RSpec.describe VmTranslator::Lexer do
     expect(described_class.new("label").tokens).to eq([[[:label_definition]]])
   end
 
-  it "returns token for label_name" do
-    expect(described_class.new("asd123").tokens).to eq([[[:label_name, "asd123"]]])
+  it "returns token for identifier" do
+    expect(described_class.new("asd123").tokens).to eq([[[:identifier, "asd123"]]])
   end
 
   it "returns token for goto" do
@@ -97,6 +97,18 @@ RSpec.describe VmTranslator::Lexer do
 
   it "returns token for if_goto" do
     expect(described_class.new("if-goto").tokens).to eq([[[:if_goto]]])
+  end
+
+  it "returns token for return" do
+    expect(described_class.new("return").tokens).to eq([[[:return]]])
+  end
+
+  it "returns token for function" do
+    expect(described_class.new("function").tokens).to eq([[[:function]]])
+  end
+
+  it "returns token for call" do
+    expect(described_class.new("call").tokens).to eq([[[:call]]])
   end
 
   it "skips the line if it is a comment" do

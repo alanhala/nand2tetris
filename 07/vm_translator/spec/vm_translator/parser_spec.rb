@@ -72,4 +72,19 @@ RSpec.describe VmTranslator::Parser do
     commands = described_class.new(VmTranslator::Lexer.new("if-goto asd").tokens).commands
     expect(commands).to eq([VmTranslator::Commands::IfGoto.new("asd")])
   end
+
+  it "parses return command" do
+    commands = described_class.new(VmTranslator::Lexer.new("return").tokens).commands
+    expect(commands).to eq([VmTranslator::Commands::Return.new])
+  end
+
+  it "parses call command" do
+    commands = described_class.new(VmTranslator::Lexer.new("call Sys.main 5").tokens).commands
+    expect(commands).to eq([VmTranslator::Commands::Call.new("Sys.main", 5)])
+  end
+
+  it "parses function command" do
+    commands = described_class.new(VmTranslator::Lexer.new("function Sys.main 5").tokens).commands
+    expect(commands).to eq([VmTranslator::Commands::Function.new("Sys.main", 5)])
+  end
 end

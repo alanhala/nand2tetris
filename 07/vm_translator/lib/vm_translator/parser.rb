@@ -33,11 +33,17 @@ module VmTranslator
           Commands::Lt.new(line)
         in [[:gt]]
           Commands::Gt.new(line)
-        in [[:label_definition], [:label_name, label]]
+        in [[:label_definition], [:identifier, label]]
           Commands::LabelDefinition.new(label)
-        in [[:goto], [:label_name, label]]
+        in [[:goto], [:identifier, label]]
           Commands::Goto.new(label)
-        in [[:if_goto], [:label_name, label]]
+        in [[:return]]
+          Commands::Return.new
+        in [[:function], [:identifier, function_name], [:number, local_variables_number]]
+          Commands::Function.new(function_name, local_variables_number)
+        in [[:call], [:identifier, function_name], [:number, arguments_number]]
+          Commands::Call.new(function_name, arguments_number)
+        in [[:if_goto], [:identifier, label]]
           Commands::IfGoto.new(label)
         end
       end
