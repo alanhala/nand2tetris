@@ -1,14 +1,32 @@
 # frozen_string_literal: true
+require "securerandom"
 
 module VmTranslator
   class Compiler
-    def initialize(vm_file_path)
-      @vm_file_path = vm_file_path
+    def initialize(vm_file_name)
+      @vm_file_name = vm_file_name
     end
 
     def compile(commands)
       compiled_assembly = commands.map { |command| command.accept(self) }.join
-      File.write(@vm_file_path.gsub(".vm", ".asm"), compiled_assembly)
+    end
+
+    def visit_bootstrap(_command)
+      <<~ASSEMBLY
+        @256
+        D = A
+        @SP
+        M = D
+        @LCL
+        MD = -1
+        @ARG
+        MD = D - 1
+        @THIS
+        MD = D - 1
+        @THAT
+        MD = D - 1
+        #{visit_call(Commands::Call.new("Sys.init", 0)).strip}
+      ASSEMBLY
     end
 
     def visit_add(_command)
@@ -66,26 +84,227 @@ module VmTranslator
     end
 
     def visit_label_definition(command)
+      full_label_name =
+        if @current_function.nil?
+          "#{@vm_file_name}$#{command.label_name}"
+        else
+          "#{@vm_file_name}.#{@current_function}$#{command.label_name}"
+        end
       <<~ASSEMBLY
-        (#{command.label_name})
+        (#{full_label_name})
       ASSEMBLY
     end
 
     def visit_goto(command)
+      full_label_name =
+        if @current_function.nil?
+          "#{@vm_file_name}$#{command.label_name}"
+        else
+          "#{@vm_file_name}.#{@current_function}$#{command.label_name}"
+        end
       <<~ASSEMBLY
-        @#{command.label_name}
+        @#{full_label_name}
         0;JMP
       ASSEMBLY
     end
 
     def visit_if_goto(command)
+      full_label_name =
+        if @current_function.nil?
+          "#{@vm_file_name}$#{command.label_name}"
+        else
+          "#{@vm_file_name}.#{@current_function}$#{command.label_name}"
+        end
       <<~ASSEMBLY
         @SP
         M = M - 1
         A = M
         D = M
-        @#{command.label_name}
+        @#{full_label_name}
         D;JNE
+      ASSEMBLY
+    end
+
+    def visit_call(command)
+      return_address = "call_return_#{SecureRandom.uuid.split('-').join}"
+      push_return_address = <<~ASSEMBLY
+        @#{return_address}
+        D = A
+        @SP
+        M = M + 1
+        A = M - 1
+        M = D
+      ASSEMBLY
+      push_lcl = <<~ASSEMBLY
+        @LCL
+        D = M
+        @SP
+        M = M + 1
+        A = M - 1
+        M = D
+      ASSEMBLY
+      push_arg = <<~ASSEMBLY
+        @ARG
+        D = M
+        @SP
+        M = M + 1
+        A = M - 1
+        M = D
+      ASSEMBLY
+      push_this = <<~ASSEMBLY
+        @THIS
+        D = M
+        @SP
+        M = M + 1
+        A = M - 1
+        M = D
+      ASSEMBLY
+      push_that = <<~ASSEMBLY
+        @THAT
+        D = M
+        @SP
+        M = M + 1
+        A = M - 1
+        M = D
+      ASSEMBLY
+      set_arg_for_function_call = <<~ASSEMBLY
+        D = A + 1
+        @5
+        D = D - A
+        @#{command.arguments_number}
+        D = D - A
+        @ARG
+        M = D
+      ASSEMBLY
+      set_lcl_for_function_call = <<~ASSEMBLY
+        @SP
+        D = M
+        @LCL
+        M = D
+      ASSEMBLY
+      go_to_function = <<~ASSEMBLY
+        @#{command.function_name}
+        0;JMP
+      ASSEMBLY
+      declare_return_address = <<~ASSEMBLY
+        (#{return_address})
+      ASSEMBLY
+      [
+        push_return_address,
+        push_lcl,
+        push_arg,
+        push_this,
+        push_that,
+        set_arg_for_function_call,
+        set_lcl_for_function_call,
+        go_to_function,
+        declare_return_address
+      ].join
+    end
+
+    def visit_return(command)
+      end_frame_label = "END_FRAME"
+      store_end_frame_location = <<~ASSEMBLY
+        @LCL
+        D = M
+        @#{end_frame_label}
+        M = D
+      ASSEMBLY
+      store_return_address = <<~ASSEMBLY
+        @5
+        D = D - A
+        A = D
+        D = M
+        @return_address
+        M = D
+      ASSEMBLY
+      store_return_value = <<~ASSEMBLY
+        @SP
+        M = M - 1
+        A = M
+        D = M
+        @ARG
+        A = M
+        M = D
+      ASSEMBLY
+      restore_sp_for_caller = <<~ASSEMBLY
+        @ARG
+        D = M
+        @SP
+        M = D + 1
+      ASSEMBLY
+      retore_that_for_caller = <<~ASSEMBLY
+        @#{end_frame_label}
+        M = M - 1
+        A = M
+        D = M
+        @THAT
+        M = D
+      ASSEMBLY
+      retore_this_for_caller = <<~ASSEMBLY
+        @#{end_frame_label}
+        M = M - 1
+        A = M
+        D = M
+        @THIS
+        M = D
+      ASSEMBLY
+      retore_arg_for_caller = <<~ASSEMBLY
+        @#{end_frame_label}
+        M = M - 1
+        A = M
+        D = M
+        @ARG
+        M = D
+      ASSEMBLY
+      retore_lcl_for_caller = <<~ASSEMBLY
+        @#{end_frame_label}
+        M = M - 1
+        A = M
+        D = M
+        @LCL
+        M = D
+      ASSEMBLY
+      go_to_return_address = <<~ASSEMBLY
+        @return_address
+        A = M
+        0;JMP
+      ASSEMBLY
+      [
+        store_end_frame_location,
+        store_return_address,
+        store_return_value,
+        restore_sp_for_caller,
+        retore_that_for_caller,
+        retore_this_for_caller,
+        retore_arg_for_caller,
+        retore_lcl_for_caller,
+        go_to_return_address
+      ].join
+    end
+
+    def visit_function(command)
+      @current_function = command.function_name
+      <<~ASSEMBLY
+        (#{command.function_name})
+        @#{command.local_variables_number}
+        D = A
+        @i
+        M = D
+        (#{command.function_name}$LOCAL_VARIABLES_INIT_LOOP)
+        @i
+        D = M
+        @#{command.function_name}$END_LOCAL_VARIABLES_INIT_LOOP
+        D;JEQ
+        @SP
+        M = M + 1
+        A = M - 1
+        M = 0
+        @i
+        M = M - 1
+        @#{command.function_name}$LOCAL_VARIABLES_INIT_LOOP
+        0;JMP
+        (#{command.function_name}$END_LOCAL_VARIABLES_INIT_LOOP)
       ASSEMBLY
     end
 
@@ -148,7 +367,7 @@ module VmTranslator
       when "local"
         store_value_in_array("LCL", index)
       when "static"
-        store_value_in_pointer("#{File.basename(@vm_file_path, ".vm")}.#{index}")
+        store_value_in_pointer("#{@vm_file_name}.#{index}")
       when "constant"
         raise("Can't pop value to constant")
       when "this"
@@ -173,7 +392,7 @@ module VmTranslator
       when "local"
         fetch_value_from_array("LCL", index)
       when "static"
-        fetch_value_from_pointer("#{File.basename(@vm_file_path, ".vm")}.#{index}")
+        fetch_value_from_pointer("#{@vm_file_name}.#{index}")
       when "constant"
         <<~ASSEMBLY
           @#{index}

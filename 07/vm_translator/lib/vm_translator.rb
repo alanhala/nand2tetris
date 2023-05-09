@@ -21,15 +21,24 @@ require_relative "vm_translator/commands/if_goto"
 require_relative "vm_translator/commands/return"
 require_relative "vm_translator/commands/function"
 require_relative "vm_translator/commands/call"
+require_relative "vm_translator/commands/bootstrap"
+require "pry-byebug"
 
 module VmTranslator
   class Error < StandardError; end
   # Your code goes here...
 
-  def self.translate(vm_file_path)
-    expanded_vm_file_path = File.expand_path(vm_file_path)
-    lexer = VmTranslator::Lexer.new(File.read(expanded_vm_file_path))
-    parser = VmTranslator::Parser.new(lexer.tokens)
-    VmTranslator::Compiler.new(expanded_vm_file_path).compile(parser.commands)
+  def self.translate(vm_program_directory)
+    bootstrap_code = Compiler.new("Sys").compile([Commands::Bootstrap.new])
+    compiled_files = Dir[vm_program_directory + "/*.vm"].map do |vm_file_path|
+      expanded_vm_file_path = File.expand_path(vm_file_path)
+      lexer = Lexer.new(File.read(expanded_vm_file_path))
+      parser = Parser.new(lexer.tokens)
+      vm_file_name = File.basename(vm_file_path, ".vm")
+      Compiler.new(vm_file_name).compile(parser.commands)
+    end
+    compiled_assembly = ([bootstrap_code] + compiled_files).join
+    asm_file_name = File.basename(vm_program_directory) + ".asm"
+    File.write("#{vm_program_directory}/#{asm_file_name}", compiled_assembly)
   end
 end
